@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="Django default" uuid="f0a16187-6887-4e6c-bbd8-c622e9bfe25e">
+    <data-source source="LOCAL" name="MySQL - @localhost" uuid="83c6b8f1-fde4-43d4-8b19-3f3a023636ea">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
-      <imported>true</imported>
-      <remarks>$PROJECT_DIR$/djangoProject1/settings.py</remarks>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://127.0.0.1:3306/djangoDB</jdbc-url>
+      <jdbc-url>jdbc:mysql://localhost:3306/djangodb</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
