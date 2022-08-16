@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 from django import forms
 from app01 import models
 
@@ -102,3 +104,44 @@ def user_edit(request, nid):
 def user_delete(request, nid):
     models.UserInfo.objects.filter(id=nid).delete()
     return redirect('/user/list/')
+
+
+def num_list(request):
+    num_set = models.PrettyNum.objects.all().order_by("-level")
+    return render(request, 'num_list.html', {"num_list": num_set})
+
+
+class NumModelForm(forms.ModelForm):
+    # mobile = forms.CharField(
+    #     label="手机号",
+    #     validators=[RegexValidator(r'^1\d{10}$', '手机号格式错误')]
+    # )
+
+    class Meta:
+        model = models.PrettyNum
+        # fields = ["mobile", "price", "level", "status"]
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            field.widget.attrs = {"class": "form-control", "placeholder": field.label}
+
+    def clean_mobile(self):
+        txt_mobile = self.cleaned_data["mobile"]
+
+        if len(txt_mobile) != 11:
+            raise ValidationError("格式错误")
+        return txt_mobile
+
+
+def num_add(request):
+    if request.method == "GET":
+        form = NumModelForm()
+        return render(request, 'num_add.html', {"form": form})
+    form = NumModelForm(data=request.POST)
+    if form.is_valid():
+        form.save()
+        return redirect('/num/list/')
+    return render(request, 'num_add.html', {"form": form})
+
