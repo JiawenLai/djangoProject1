@@ -8,6 +8,10 @@
                     <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
                     添加用户
                 </a>
+                <a class="btn btn-success" href="/user/model/form/add/">
+                    <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                    添加用户MF
+                </a>
             </div>
 
             <div>
@@ -46,8 +50,8 @@
                                     <td>{{ user.get_gender_display }}</td>
                                     <td>{{ user.depart.title }}</td>
                                     <td>
-                                        <a href="" class="btn btn-primary btn-xs">编辑</a>
-                                        <a href="" class="btn btn-danger btn-xs">删除</a>
+                                        <a href="/user/{{ user.id }}/edit" class="btn btn-primary btn-xs">编辑</a>
+                                        <a href="/user/{{ user.id }}/delete" class="btn btn-danger btn-xs">删除</a>
                                     </td>
                                 </tr>
                             {% endfor %}

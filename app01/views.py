@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django import forms
 from app01 import models
 
 
@@ -58,3 +59,46 @@ def user_add(request):
     models.UserInfo.objects.create(name=name, password=password, age=age, account=account, create_time=create_time,
                                    gender=gender, depart_id=depart)
     return redirect("/user/list/")
+
+
+class UserModelForm(forms.ModelForm):
+
+    class Meta:
+        model = models.UserInfo
+        fields = ["name", "password", "age", "account", "create_time", "gender", "depart"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            field.widget.attrs = {"class": "form-control", "placeholder": field.label}
+
+
+def user_model_form_add(request):
+    if request.method == "GET":
+        form = UserModelForm()
+        return render(request, 'user_model_form_add.html', {"form": form})
+
+    form = UserModelForm(data=request.POST)
+    if form.is_valid():
+        form.save()
+        return redirect("/user/list/")
+    return render(request, 'user_model_form_add.html', {"form": form})
+
+
+def user_edit(request, nid):
+    if request.method == "GET":
+        row_obj = models.UserInfo.objects.filter(id=nid).first()
+        form = UserModelForm(instance=row_obj)
+        return render(request, 'user_edit.html', {"form": form})
+
+    row_obj = models.UserInfo.objects.filter(id=nid).first()
+    form = UserModelForm(data=request.POST, instance=row_obj)
+    if form.is_valid():
+        form.save()
+        return redirect('/user/list/')
+    return render(request, 'user_edit.html', {"form": form})
+
+
+def user_delete(request, nid):
+    models.UserInfo.objects.filter(id=nid).delete()
+    return redirect('/user/list/')
