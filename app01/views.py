@@ -107,8 +107,13 @@ def user_delete(request, nid):
 
 
 def num_list(request):
-    num_set = models.PrettyNum.objects.all().order_by("-level")
-    return render(request, 'num_list.html', {"num_list": num_set})
+    data_dict = {}
+    value = request.GET.get('q', "")
+    if value:
+        data_dict["mobile__contains"] = value
+
+    num_set = models.PrettyNum.objects.filter(**data_dict).order_by("-level")
+    return render(request, 'num_list.html', {"num_list": num_set, "search_data": value})
 
 
 class NumModelForm(forms.ModelForm):
