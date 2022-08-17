@@ -30,5 +30,7 @@ urlpatterns = [
     path('user/<int:nid>/delete/', views.user_delete),
     path('num/list/', views.num_list),
     path('num/add/', views.num_add),
+    path('num/<int:nid>/edit/', views.num_edit),
+    path('num/<int:nid>/delete/', views.num_delete),
 
 ]

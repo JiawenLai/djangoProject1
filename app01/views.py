@@ -112,10 +112,10 @@ def num_list(request):
 
 
 class NumModelForm(forms.ModelForm):
-    # mobile = forms.CharField(
-    #     label="手机号",
-    #     validators=[RegexValidator(r'^1\d{10}$', '手机号格式错误')]
-    # )
+    mobile = forms.CharField(
+        label="手机号",
+        validators=[RegexValidator(r'^1\d{10}$', '手机号格式错误')]
+    )
 
     class Meta:
         model = models.PrettyNum
@@ -127,11 +127,18 @@ class NumModelForm(forms.ModelForm):
         for name, field in self.fields.items():
             field.widget.attrs = {"class": "form-control", "placeholder": field.label}
 
+    # def clean_mobile(self):
+    #     txt_mobile = self.cleaned_data["mobile"]
+    #
+    #     if len(txt_mobile) != 11:
+    #         raise ValidationError("格式错误")
+    #     return txt_mobile
     def clean_mobile(self):
         txt_mobile = self.cleaned_data["mobile"]
 
-        if len(txt_mobile) != 11:
-            raise ValidationError("格式错误")
+        exists = models.PrettyNum.objects.filter(mobile=txt_mobile).exists()
+        if exists:
+            raise ValidationError("手机号已存在")
         return txt_mobile
 
 
@@ -145,3 +152,44 @@ def num_add(request):
         return redirect('/num/list/')
     return render(request, 'num_add.html', {"form": form})
 
+
+class NumModelEditForm(forms.ModelForm):
+    mobile = forms.CharField(
+        label="手机号",
+        # disabled=True,
+        validators=[RegexValidator(r'^1\d{10}$', '手机号格式错误')],
+    )
+
+    class Meta:
+        model = models.PrettyNum
+        fields = ["mobile", "price", "level", "status"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            field.widget.attrs = {"class": "form-control", "placeholder": field.label}
+
+    def clean_mobile(self):
+        txt_mobile = self.cleaned_data["mobile"]
+
+        exists = models.PrettyNum.objects.exclude(id=self.instance.pk).filter(mobile=txt_mobile).exists()
+        if exists:
+            raise ValidationError("手机号已存在")
+        return txt_mobile
+
+
+def num_edit(request, nid):
+    row_obj = models.PrettyNum.objects.filter(id=nid).first()
+    if request.method == "GET":
+        form = NumModelEditForm(instance=row_obj)
+        return render(request, 'num_edit.html', {"form": form})
+    form = NumModelEditForm(data=request.POST, instance=row_obj)
+    if form.is_valid():
+        form.save()
+        return redirect("/num/list/")
+    return render(request, 'num_edit.html', {"form": form})
+
+
+def num_delete(request, nid):
+    models.PrettyNum.objects.filter(id=nid).delete()
+    return redirect('/num/list/')
