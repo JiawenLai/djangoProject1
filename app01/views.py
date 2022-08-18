@@ -198,3 +198,26 @@ def num_edit(request, nid):
 def num_delete(request, nid):
     models.PrettyNum.objects.filter(id=nid).delete()
     return redirect('/num/list/')
+
+
+class LoginForm(forms.Form):
+    username = forms.CharField(
+        label="用户名",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+        required=True
+    )
+    password = forms.CharField(
+        label="用户名",
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        required=True
+    )
+
+
+def admin_login(request):
+    if request.method == "GET":
+        form = LoginForm()
+        return render(request, 'login.html', {"form": form})
+    form = LoginForm(data=request.POST)
+    if form.is_valid():
+        pass
+    return render(request, 'login.html', {'form': form})
