@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django import forms
@@ -208,7 +208,7 @@ class LoginForm(forms.Form):
     )
     password = forms.CharField(
         label="用户名",
-        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        widget=forms.PasswordInput(attrs={"class": "form-control"}, render_value=True),
         required=True
     )
 
@@ -219,5 +219,10 @@ def admin_login(request):
         return render(request, 'login.html', {"form": form})
     form = LoginForm(data=request.POST)
     if form.is_valid():
-        pass
+        admin_obj = models.Admin.objects.filter(**form.cleaned_data).first()
+        if not admin_obj:
+            form.add_error("password", "用户名或密码错误")
+            return render(request, 'login.html', {'form': form})
+        request.session["info"] = {"id": admin_obj.id, "name": admin_obj.username}
+        return redirect('/depart/list/')
     return render(request, 'login.html', {'form': form})

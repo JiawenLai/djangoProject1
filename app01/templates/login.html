@@ -30,12 +30,12 @@
     <form method="post" novalidate>
         {% csrf_token %}
         <div class="form-group">
-            <label for="exampleInputEmail1">Email address</label>
+            <label for="exampleInputEmail1">用户名</label>
             {{ form.username }}
             <span style="color: red">{{ form.username.errors.0 }}</span>
         </div>
         <div class="form-group">
-            <label for="exampleInputPassword1">Password</label>
+            <label for="exampleInputPassword1">密码</label>
             {{ form.password }}
             <span style="color: red">{{ form.password.errors.0 }}</span>
         </div>
