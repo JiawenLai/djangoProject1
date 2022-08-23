@@ -32,6 +32,7 @@ urlpatterns = [
     path('num/add/', views.num_add),
     path('num/<int:nid>/edit/', views.num_edit),
     path('num/<int:nid>/delete/', views.num_delete),
-    path('account/login/', views.admin_login)
+    path('account/login/', views.admin_login),
+    path('logout/', views.logout)
 
 ]

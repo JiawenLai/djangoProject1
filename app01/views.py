@@ -226,3 +226,10 @@ def admin_login(request):
         request.session["info"] = {"id": admin_obj.id, "name": admin_obj.username}
         return redirect('/depart/list/')
     return render(request, 'login.html', {'form': form})
+
+
+def logout(request):
+
+    request.session.clear()
+
+    return redirect('/account/login/')
