@@ -1,8 +1,12 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.core.validators import RegexValidator
+from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
+from django.http import JsonResponse
 from django import forms
 from app01 import models
+import random
+from datetime import datetime
 
 
 # Create your views here.
@@ -233,3 +237,29 @@ def logout(request):
     request.session.clear()
 
     return redirect('/account/login/')
+
+
+class OrderForm(forms.ModelForm):
+    class Meta:
+        model = models.Order
+        exclude = ['oid']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            field.widget.attrs = {"class": "form-control", "placeholder": field.label}
+
+
+def order_list(request):
+    form = OrderForm()
+    return render(request, "order_list.html", {"form": form})
+
+
+@csrf_exempt
+def order_add(request):
+    form = OrderForm(data=request.POST)
+    if form.is_valid():
+        form.instance.oid = datetime.now().strftime("%Y%m%d%H%M%S") + str(random.randint(1000, 9999))
+        form.save()
+        return JsonResponse({"status": True})
+    return JsonResponse({"status": False, "error": form.errors})
