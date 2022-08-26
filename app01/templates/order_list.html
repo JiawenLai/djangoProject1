@@ -3,7 +3,7 @@
 {% block content %}
     <div class="container">
         <div style="margin-bottom: 10px">
-            <input type="button" value="新建订单" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+            <input id="btnAdd" type="button" value="新建订单" class="btn btn-primary">
         </div>
         <div class="bs-example" data-example-id="panel-without-body-with-table">
             <div class="panel panel-default">
@@ -34,8 +34,10 @@
                             <td>{{ obj.get_status_display }}</td>
                             <td>{{ obj.admin.username }}</td>
                             <td>
-                                <input uid="{{ obj.id }}" type="button" class="btn btn-primary btn-xs btn-edit" value="编辑">
-                                <input uid="{{ obj.id }}" type="button" class="btn btn-danger btn-xs btn-delete" value="删除">
+                                <input uid="{{ obj.id }}" type="button" class="btn btn-primary btn-xs btn-edit"
+                                       value="编辑">
+                                <input uid="{{ obj.id }}" type="button" class="btn btn-danger btn-xs btn-delete"
+                                       value="删除">
                             </td>
                         </tr>
                     {% endfor %}
@@ -100,11 +102,21 @@
     <script type="text/javascript">
         var Delete_ID
         $(function () {
+            bindBtnAddEvent();
             bindBtnSaveEvent();
             bindBtnDeleteEvent();
             bindBtnConfirmDeleteEvent();
             bindBtnEditEvent();
         })
+
+        function bindBtnAddEvent() {
+            $("#btnAdd").click(function () {
+                $("#formAdd")[0].reset()
+                $("#myModalLabel").text("新建")
+                $("#myModal").modal('show')
+
+            })
+        }
 
         function bindBtnSaveEvent() {
             $("#btnSave").click(function () {
@@ -148,7 +160,7 @@
                     success: function (res) {
                         if (res.status) {
                             location.reload()
-                        }else {
+                        } else {
                             alert(res.error)
                         }
                     }
@@ -158,8 +170,30 @@
 
         function bindBtnEditEvent() {
             $(".btn-edit").click(function () {
-                $("#myModal").modal('show')
-                $("#myModalLabel").text("编辑")
+                $("#formAdd")[0].reset()
+                var uid = $(this).attr("uid")
+                $.ajax({
+                    url: "/order/detail/",
+                    type: "get",
+                    data: {
+                        uid: uid
+                    },
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            $.each(res.data, function (name, value) {
+                                $("#id_"+name).val(value)
+                            })
+                            $("#myModalLabel").text("编辑")
+
+                            $("#myModal").modal('show')
+
+                        } else {
+                            alert(res.error)
+                        }
+                    }
+
+                })
             })
         }
     </script>
