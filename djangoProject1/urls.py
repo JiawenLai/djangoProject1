@@ -36,5 +36,6 @@ urlpatterns = [
     path('logout/', views.logout),
     path('order/list/', views.order_list),
     path('order/add/', views.order_add),
+    path('order/delete/', views.order_delete),
 
 ]

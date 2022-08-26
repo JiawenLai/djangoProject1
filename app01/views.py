@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django import forms
 from app01 import models
+from app01.static.utils.pagination import Pagination
 import random
 from datetime import datetime
 
@@ -242,7 +243,7 @@ def logout(request):
 class OrderForm(forms.ModelForm):
     class Meta:
         model = models.Order
-        exclude = ['oid']
+        exclude = ['oid', 'admin']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -251,8 +252,16 @@ class OrderForm(forms.ModelForm):
 
 
 def order_list(request):
+    queryset = models.Order.objects.all().order_by('-id')
+    page_obj = Pagination(request, queryset)
     form = OrderForm()
-    return render(request, "order_list.html", {"form": form})
+
+    context = {
+        'form': form,
+        'queryset': page_obj.page_queryset,
+        'page_string': page_obj.html()
+    }
+    return render(request, "order_list.html", context)
 
 
 @csrf_exempt
@@ -260,6 +269,16 @@ def order_add(request):
     form = OrderForm(data=request.POST)
     if form.is_valid():
         form.instance.oid = datetime.now().strftime("%Y%m%d%H%M%S") + str(random.randint(1000, 9999))
+        form.instance.admin_id = request.session["info"]["id"]
         form.save()
         return JsonResponse({"status": True})
     return JsonResponse({"status": False, "error": form.errors})
+
+
+def order_delete(request):
+    uid = request.GET.get("uid")
+    exists = models.Order.objects.filter(id=uid).exists()
+    if not exists:
+        return JsonResponse({"status": False, "error": "数据不存在"})
+    models.Order.objects.filter(id=uid).delete()
+    return JsonResponse({"status": True})

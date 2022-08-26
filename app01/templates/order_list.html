@@ -2,10 +2,52 @@
 
 {% block content %}
     <div class="container">
-        <div>
+        <div style="margin-bottom: 10px">
             <input type="button" value="新建订单" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
         </div>
+        <div class="bs-example" data-example-id="panel-without-body-with-table">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> 订单列表
+                </div>
+                <!-- Table -->
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>订单号</th>
+                        <th>名称</th>
+                        <th>价格</th>
+                        <th>状态</th>
+                        <th>管理员</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for obj in queryset %}
+                        <tr>
+                            <th>{{ obj.id }}</th>
+                            <td>{{ obj.oid }}</td>
+                            <td>{{ obj.title }}</td>
+                            <td>{{ obj.price }}</td>
+                            <td>{{ obj.get_status_display }}</td>
+                            <td>{{ obj.admin.username }}</td>
+                            <td>
+                                <input uid="{{ obj.id }}" type="button" class="btn btn-primary btn-xs btn-edit" value="编辑">
+                                <input uid="{{ obj.id }}" type="button" class="btn btn-danger btn-xs btn-delete" value="删除">
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <ul class="pagination">
+                {{ page_string }}
+            </ul>
+        </div>
     </div>
+
 
     <!-- Modal -->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -39,12 +81,29 @@
         </div>
     </div>
 
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <h4>是否确定删除？</h4>
+                <p style="margin: 10px 0">删除后所有相关联的数据都会被删除。</p>
+                <p style="text-align: right">
+                    <button id="btnConfirmDelete" type="button" class="btn btn-danger">确定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block js %}
     <script type="text/javascript">
+        var Delete_ID
         $(function () {
             bindBtnSaveEvent();
+            bindBtnDeleteEvent();
+            bindBtnConfirmDeleteEvent();
+            bindBtnEditEvent();
         })
 
         function bindBtnSaveEvent() {
@@ -58,7 +117,10 @@
                     success: function (res) {
                         console.log(res)
                         if (res.status) {
-                            alert("创建成功")
+                            //alert("创建成功")
+                            $("#formAdd")[0].reset()
+                            $("#myModal").modal('hide')
+                            location.reload()
                         } else {
                             $.each(res.error, function (name, errorList) {
                                 $("#id_" + name).next().text(errorList[0])
@@ -66,6 +128,38 @@
                         }
                     }
                 })
+            })
+        }
+
+        function bindBtnDeleteEvent() {
+            $(".btn-delete").click(function () {
+                $("#deleteModal").modal('show')
+                Delete_ID = $(this).attr("uid")
+            })
+        }
+
+        function bindBtnConfirmDeleteEvent() {
+            $("#btnConfirmDelete").click(function () {
+                $.ajax({
+                    url: "/order/delete/",
+                    type: "GET",
+                    data: {uid: Delete_ID},
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            location.reload()
+                        }else {
+                            alert(res.error)
+                        }
+                    }
+                })
+            })
+        }
+
+        function bindBtnEditEvent() {
+            $(".btn-edit").click(function () {
+                $("#myModal").modal('show')
+                $("#myModalLabel").text("编辑")
             })
         }
     </script>
