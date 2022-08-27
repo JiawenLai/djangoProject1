@@ -38,5 +38,6 @@ urlpatterns = [
     path('order/add/', views.order_add),
     path('order/delete/', views.order_delete),
     path('order/detail/', views.order_detail),
+    path('order/edit/', views.order_edit),
 
 ]

@@ -3,7 +3,7 @@
 {% block content %}
     <div class="container">
         <div style="margin-bottom: 10px">
-            <input id="btnAdd" type="button" value="新建订单" class="btn btn-primary">
+            <input id="btnAdd" type="button" value="新建订单" class="btn btn-success">
         </div>
         <div class="bs-example" data-example-id="panel-without-body-with-table">
             <div class="panel panel-default">
@@ -101,6 +101,8 @@
 {% block js %}
     <script type="text/javascript">
         var Delete_ID
+        var Edit_ID
+
         $(function () {
             bindBtnAddEvent();
             bindBtnSaveEvent();
@@ -111,6 +113,7 @@
 
         function bindBtnAddEvent() {
             $("#btnAdd").click(function () {
+                Edit_ID = undefined
                 $("#formAdd")[0].reset()
                 $("#myModalLabel").text("新建")
                 $("#myModal").modal('show')
@@ -121,25 +124,61 @@
         function bindBtnSaveEvent() {
             $("#btnSave").click(function () {
                 $(".error-msg").empty()
-                $.ajax({
-                    url: "/order/add/",
-                    type: "post",
-                    data: $("#formAdd").serialize(),
 
-                    success: function (res) {
-                        console.log(res)
-                        if (res.status) {
-                            //alert("创建成功")
-                            $("#formAdd")[0].reset()
-                            $("#myModal").modal('hide')
-                            location.reload()
+                if (Edit_ID) {
+                    doEdit()
+                } else {
+                    doAdd()
+                }
+            })
+        }
+
+        function doEdit() {
+            $.ajax({
+                url: "/order/edit/" + "?uid=" + Edit_ID,
+                type: "post",
+                data: $("#formAdd").serialize(),
+                success: function (res) {
+                    console.log(res)
+                    if (res.status) {
+                        //alert("创建成功")
+                        $("#formAdd")[0].reset()
+                        $("#myModal").modal('hide')
+                        location.reload()
+                    } else {
+                        if (res.msg) {
+                            alert(res.msg)
                         } else {
                             $.each(res.error, function (name, errorList) {
                                 $("#id_" + name).next().text(errorList[0])
                             })
                         }
+
+
                     }
-                })
+                }
+            })
+        }
+
+        function doAdd() {
+            $.ajax({
+                url: "/order/add/",
+                type: "post",
+                data: $("#formAdd").serialize(),
+
+                success: function (res) {
+                    console.log(res)
+                    if (res.status) {
+                        //alert("创建成功")
+                        $("#formAdd")[0].reset()
+                        $("#myModal").modal('hide')
+                        location.reload()
+                    } else {
+                        $.each(res.error, function (name, errorList) {
+                            $("#id_" + name).next().text(errorList[0])
+                        })
+                    }
+                }
             })
         }
 
@@ -172,6 +211,7 @@
             $(".btn-edit").click(function () {
                 $("#formAdd")[0].reset()
                 var uid = $(this).attr("uid")
+                Edit_ID = uid
                 $.ajax({
                     url: "/order/detail/",
                     type: "get",
@@ -182,7 +222,7 @@
                     success: function (res) {
                         if (res.status) {
                             $.each(res.data, function (name, value) {
-                                $("#id_"+name).val(value)
+                                $("#id_" + name).val(value)
                             })
                             $("#myModalLabel").text("编辑")
 

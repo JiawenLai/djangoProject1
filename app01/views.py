@@ -295,4 +295,15 @@ def order_detail(request):
     }
     return JsonResponse(result)
 
-    return None
+
+@csrf_exempt
+def order_edit(request):
+    uid = request.GET.get("uid")
+    row_obj = models.Order.objects.filter(id=uid).first()
+    if not row_obj:
+        return JsonResponse({"status": False, "msg": "数据不存在, 请刷新重试。"})
+    form = OrderForm(data=request.POST, instance=row_obj)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({"status": True})
+    return JsonResponse({"status": False, "error": form.errors})
