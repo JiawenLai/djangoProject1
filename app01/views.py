@@ -307,3 +307,16 @@ def order_edit(request):
         form.save()
         return JsonResponse({"status": True})
     return JsonResponse({"status": False, "error": form.errors})
+
+
+@csrf_exempt
+def upload_list(request):
+    if request.method == "GET":
+        return render(request, "upload_list.html")
+    file_obj = request.FILES.get("avatar")
+    f = open(file_obj.name, mode="wb")
+
+    for chunk in file_obj.chunks():
+        f.write(chunk)
+    f.close()
+    return HttpResponse("---")

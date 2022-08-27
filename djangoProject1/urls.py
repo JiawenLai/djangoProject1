@@ -39,5 +39,6 @@ urlpatterns = [
     path('order/delete/', views.order_delete),
     path('order/detail/', views.order_detail),
     path('order/edit/', views.order_edit),
+    path('upload/list/', views.upload_list),
 
 ]
